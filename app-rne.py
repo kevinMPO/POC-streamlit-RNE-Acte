@@ -54,7 +54,7 @@ if token and siren:
         for doc in documents:
             date_depot = doc.get('dateDepot')
             nom_document = doc.get('nomDocument')
-            id_doc = doc.get('idDoc')  # Obtenez l'id_doc à partir des données du document
+            id_doc = doc.get('id')  # Obtenez l'id_doc à partir des données du document
             type_rdds = doc.get('typeRdd', [])
             for type_rdd in type_rdds:
                 type_acte = type_rdd.get('typeActe')
