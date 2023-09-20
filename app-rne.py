@@ -3,6 +3,7 @@ import requests
 import pandas as pd
 
 # Fonctions pour obtenir le token et les documents
+
 def get_token():
     url = "https://registre-national-entreprises.inpi.fr/api/sso/login"
     payload = {
@@ -13,20 +14,10 @@ def get_token():
     if response.status_code == 200:
         return response.json().get("token")
     else:
+        st.write(f"Erreur : {response.status_code}")  # Ajoutez cette ligne pour imprimer le code d'erreur
+        st.write(f"Réponse : {response.text}")  # Ajoutez cette ligne pour imprimer le texte de la réponse
         return None
-
-@st.cache(allow_output_mutation=True)
-def get_documents(siren, token):
-    url = f"https://registre-national-entreprises.inpi.fr/api/companies/{siren}/attachments"
-    headers = {
-        "Authorization": f"Bearer {token}"
-    }
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        return response.json().get("actes")
-    else:
-        return None
-
+        
 # Configuration Streamlit
 st.set_page_config(
     page_title="Consultation des Actes d'Entreprises",
