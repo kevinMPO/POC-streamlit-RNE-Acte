@@ -7,7 +7,7 @@ def get_token():
     url = "https://registre-national-entreprises.inpi.fr/api/sso/login"
     payload = {
         "username": "kmameri@scores-decisions.com",
-        "password": "Intesciademo2022!"
+        "password": "Intescia2022!"
     }
     response = requests.post(url, json=payload)
     if response.status_code == 200:
