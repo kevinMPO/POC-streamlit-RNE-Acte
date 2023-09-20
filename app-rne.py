@@ -60,7 +60,7 @@ if token and siren:
                 decision = type_rdd.get('decision')
                 data.append([date_depot, nom_document, type_acte, decision])
         
-        df = pd.DataFrame(data, columns=['Date de dépôt', 'Nom du document', 'Type d'acte', 'Décision'])
+        df = pd.DataFrame(data, columns=['Date de dépôt', 'Nom du document', "Type d'acte", 'Décision'])
         st.write(df)
     else:
         st.warning("Aucun document trouvé pour ce SIREN.")
