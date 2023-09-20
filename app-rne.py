@@ -53,14 +53,14 @@ if token and siren:
         data = []
         for doc in documents:
             date_depot = doc.get('dateDepot')
-            nom_document = doc.get('nomDocument')
+            id_doc = doc.get('id')
             type_rdds = doc.get('typeRdd', [])
             for type_rdd in type_rdds:
                 type_acte = type_rdd.get('typeActe')
                 decision = type_rdd.get('decision')
-                data.append([date_depot, nom_document, type_acte, decision])
+                data.append([id_doc, date_depot, type_acte, decision])
         
-        df = pd.DataFrame(data, columns=['Date de dépôt', 'Nom du document', "Type d'acte", 'Décision'])
+        df = pd.DataFrame(data, columns=['id_doc','Date de dépôt', "Type d'acte", 'Décision'])
         st.write(df)
     else:
         st.warning("Aucun document trouvé pour ce SIREN.")
