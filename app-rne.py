@@ -1,68 +1,55 @@
 import streamlit as st
 import requests
+from io import BytesIO
 
 # Fonctions pour obtenir le token et les documents
 def get_token():
-    url = "https://registre-national-entreprises.inpi.fr/api/sso/login"
-    payload = {
-        "username": "kmameri@scores-decisions.com",
-        "password": "Intesciarne2022!"
-    }
-    response = requests.post(url, json=payload)
-    if response.status_code == 200:
-        return response.json().get("token")
-    else:
-        return None
+    # ... (Votre code existant ici)
 
 def get_documents(siren, token):
-    url = f"https://registre-national-entreprises.inpi.fr/api/companies/{siren}/attachments"
+    # ... (Votre code existant ici)
+
+def download_document(doc_id, token):
+    url = f"https://registre-national-entreprises.inpi.fr/api/actes/{doc_id}/download"
     headers = {
         "Authorization": f"Bearer {token}"
     }
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
-        return response.json().get("actes")
+        return BytesIO(response.content)
     else:
         return None
 
 # Configuration Streamlit
-st.set_page_config(
-    page_title="Consultation des Actes d'Entreprises",
-    layout='wide',
-    page_icon="📑",
-    menu_items={
-         'About': 'Call Kevin MAMERI',
-     }
-)
+# ... (Votre code existant ici)
 
 # Titre de la page
-st.header("Téléchargement des Actes et statuts PDF via SIREN")
-st.caption("App développée par Kevin M.")
+# ... (Votre code existant ici)
 
 # Entrée du SIREN
-siren = st.text_input("Veuillez entrer le SIREN de l'entreprise:")
+# ... (Votre code existant ici)
 
 # Obtenir le token
-token = get_token()
-
-import pandas as pd
+# ... (Votre code existant ici)
 
 if token and siren:
     documents = get_documents(siren, token)
     if documents:
-        data = []
         for doc in documents:
-            date_depot = doc.get('dateDepot')
-            id_doc = doc.get('id')  # Obtenez l'id_doc à partir des données du document
-            type_rdds = doc.get('typeRdd', [])
-            for type_rdd in type_rdds:
-                type_acte = type_rdd.get('typeActe')
-                decision = type_rdd.get('decision')
-                doc_url = f"https://registre-national-entreprises.inpi.fr/api/actes/{id_doc}/download"  # Construisez l'URL du document avec le token
-                data.append([date_depot, type_acte, decision, f'<a href="{doc_url}" target="_blank">Voir le Document</a>'])  # Ajoutez l'URL du document comme un lien HTML
-        
-        df = pd.DataFrame(data, columns=['Date de dépôt', 'Type d\'acte', 'Décision', 'Document'])
-        st.write(df.to_html(escape=False, render_links=True), unsafe_allow_html=True)  # Affichez le DataFrame avec les liens actifs
+            # ... (Votre code existant pour afficher les détails du document)
+            
+            doc_id = doc.get('id')  # Assume 'id' is the key that contains the document ID
+            if doc_id:
+                pdf_data = download_document(doc_id, token)
+                if pdf_data:
+                    st.download_button(
+                        label="Télécharger le document",
+                        data=pdf_data,
+                        file_name=f"{doc_id}.pdf",
+                        mime="application/pdf"
+                    )
+                else:
+                    st.error("Impossible de télécharger le document.")
     else:
         st.warning("Aucun document trouvé pour ce SIREN.")
 else:
