@@ -54,16 +54,16 @@ if token and siren:
         for doc in documents:
             date_depot = doc.get('dateDepot')
             nom_document = doc.get('nomDocument')
-            id_doc = doc.get('idDoc') # Obtenez l'id_doc à partir des données du document
+            id_doc = doc.get('idDoc')  # Obtenez l'id_doc à partir des données du document
             type_rdds = doc.get('typeRdd', [])
             for type_rdd in type_rdds:
                 type_acte = type_rdd.get('typeActe')
                 decision = type_rdd.get('decision')
-                doc_url = f"https://registre-national-entreprises.inpi.fr/api/companies/{siren}/attachments/{id_doc}" # Construisez l'URL du document
-                data.append([date_depot, nom_document, type_acte, decision, doc_url])
+                doc_url = f"https://registre-national-entreprises.inpi.fr/api/actes/{id_doc}/download"  # Construisez l'URL du document avec le token
+                data.append([date_depot, nom_document, type_acte, decision, f'<a href="{doc_url}" target="_blank">Voir le Document</a>'])  # Ajoutez l'URL du document comme un lien HTML
         
-        df = pd.DataFrame(data, columns=['Date de dépôt', 'Nom du document', 'Type d\'acte', 'Décision', 'Lien du document'])
-        st.write(df.to_html(escape=False, render_links=True), unsafe_allow_html=True) # Affichez le DataFrame avec les liens actifs
+        df = pd.DataFrame(data, columns=['Date de dépôt', 'Nom du document', 'Type d\'acte', 'Décision', 'Document'])
+        st.write(df.to_html(escape=False, render_links=True), unsafe_allow_html=True)  # Affichez le DataFrame avec les liens actifs
     else:
         st.warning("Aucun document trouvé pour ce SIREN.")
 else:
