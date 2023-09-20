@@ -1,24 +1,50 @@
 import streamlit as st
 import requests
 from io import BytesIO
-import pandas as pd
 
 # Fonctions pour obtenir le token et les documents
 def get_token():
-    # ... (pas de changement ici)
-    pass
+    url = "https://registre-national-entreprises.inpi.fr/api/sso/login"
+    payload = {
+        "username": "kmameri@scores-decisions.com",
+        "password": "Intesciarne2022!"
+    }
+    response = requests.post(url, json=payload)
+    if response.status_code == 200:
+        return response.json().get("token")
+    else:
+        return None
 
 def get_documents(siren, token):
-    # ... (pas de changement ici)
-    pass
+    url = f"https://registre-national-entreprises.inpi.fr/api/companies/{siren}/attachments"
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return response.json().get("actes")
+    else:
+        return None
 
 def download_document(doc_id, token):
-    # ... (pas de changement ici)
-    pass
+    url = f"https://registre-national-entreprises.inpi.fr/api/actes/{doc_id}/download"
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return BytesIO(response.content)
+    else:
+        return None
 
 # Configuration Streamlit
 st.set_page_config(
-    # ... (pas de changement ici)
+    page_title="Consultation des Actes d'Entreprises",
+    layout='wide',
+    page_icon="📑",
+    menu_items={
+         'About': 'Call Kevin MAMERI',
+     }
 )
 
 # Titre de la page
