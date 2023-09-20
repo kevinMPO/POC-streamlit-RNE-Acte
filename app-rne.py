@@ -36,8 +36,8 @@ st.set_page_config(
 )
 
 # Titre de la page
-st.header("Consultation des Actes d'Entreprises via SIREN")
-st.caption("App développée par Kevin MAMERI")
+st.header("Téléchargement des Actes et statuts PDF via SIREN")
+st.caption("App développée par Kevin M.")
 
 # Entrée du SIREN
 siren = st.text_input("Veuillez entrer le SIREN de l'entreprise:")
