@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 from io import BytesIO
 import pandas as pd
-
+import base64
 
 # Fonctions pour obtenir le token et les documents
 def get_token():
@@ -37,7 +37,7 @@ def download_document(doc_id, token):
     }
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
-        return BytesIO(response.content)
+        return base64.b64encode(response.content).decode("utf-8")
     else:
         return None
 
@@ -77,8 +77,12 @@ if token and siren:
             doc_id = doc.get('id')
             download_button = None
             if doc_id:
-                # Création d'un lien de téléchargement qui appellera la fonction download_document lorsqu'il sera cliqué
-                download_button = f'<a href="/download?doc_id={doc_id}&token={token}" target="_blank">Télécharger le document</a>'
+                pdf_data = download_document(doc_id, token)
+                if pdf_data:
+                    # Créer un bouton de téléchargement en tant que chaîne HTML
+                    download_button = f'<a href="data:application/pdf;base64,{pdf_data}" download="{doc_id}.pdf">Télécharger le document</a>'
+                else:
+                    download_button = "Impossible de télécharger le document"
                 
             data_list.append({
                 "Date de dépôt": date_depot,
