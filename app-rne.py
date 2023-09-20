@@ -1,15 +1,13 @@
 import streamlit as st
 import requests
-from io import BytesIO
 import pandas as pd
-import base64
 
 # Fonctions pour obtenir le token et les documents
 def get_token():
     url = "https://registre-national-entreprises.inpi.fr/api/sso/login"
     payload = {
         "username": "kmameri@scores-decisions.com",
-        "password": "Intesciarne2022!"
+        "password": "Intesciademo2022!"
     }
     response = requests.post(url, json=payload)
     if response.status_code == 200:
@@ -26,18 +24,6 @@ def get_documents(siren, token):
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         return response.json().get("actes")
-    else:
-        return None
-
-@st.cache(allow_output_mutation=True)
-def download_document(doc_id, token):
-    url = f"https://registre-national-entreprises.inpi.fr/api/actes/{doc_id}/download"
-    headers = {
-        "Authorization": f"Bearer {token}"
-    }
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        return base64.b64encode(response.content).decode("utf-8")
     else:
         return None
 
@@ -77,12 +63,8 @@ if token and siren:
             doc_id = doc.get('id')
             download_button = None
             if doc_id:
-                pdf_data = download_document(doc_id, token)
-                if pdf_data:
-                    # Créer un bouton de téléchargement en tant que chaîne HTML
-                    download_button = f'<a href="data:application/pdf;base64,{pdf_data}" download="{doc_id}.pdf">Télécharger le document</a>'
-                else:
-                    download_button = "Impossible de télécharger le document"
+                # Création d'un lien de téléchargement qui appellera une fonction pour télécharger le document lorsqu'il sera cliqué
+                download_button = f'<a href="https://actes-pdf-rne.streamlit.app/download?doc_id={doc_id}&token={token}" target="_blank">Télécharger le document</a>'
                 
             data_list.append({
                 "Date de dépôt": date_depot,
