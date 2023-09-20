@@ -54,24 +54,30 @@ st.caption("App développée par Kevin MAMERI")
 # Entrée du SIREN
 siren = st.text_input("Veuillez entrer le SIREN de l'entreprise:")
 
+import pandas as pd
+import streamlit as st
+
 # Obtenir le token
 token = get_token()
 
 if token and siren:
     documents = get_documents(siren, token)
+    data_list = []  # Pour stocker les données de chaque document
     if documents:
         for doc in documents:
-            st.write(f"Date de dépôt : {doc.get('dateDepot')}")
-            st.write(f"Nom du document : {doc.get('nomDocument')}")
+            date_depot = doc.get('dateDepot')
+            nom_document = doc.get('nomDocument')
+            
             for type_rdd in doc.get('typeRdd', []):
-                st.write(f"Type d'acte : {type_rdd.get('typeActe')}")
-                st.write(f"Décision : {type_rdd.get('decision')}")
+                type_acte = type_rdd.get('typeActe')
+                decision = type_rdd.get('decision')
             
             doc_id = doc.get('id')  # Assume 'id' is the key that contains the document ID
+            download_button = None
             if doc_id:
                 pdf_data = download_document(doc_id, token)
                 if pdf_data:
-                    st.download_button(
+                    download_button = st.download_button(
                         label="Télécharger le document",
                         data=pdf_data,
                         file_name=f"{doc_id}.pdf",
@@ -79,7 +85,20 @@ if token and siren:
                     )
                 else:
                     st.error("Impossible de télécharger le document.")
-            st.write("")  # Cette ligne ajoute un espace entre chaque document
+
+            # Ajoutez les données du document actuel à data_list
+            data_list.append({
+                "Date de dépôt": date_depot,
+                "Type d'acte": type_acte,
+                "Décision": decision,
+                "Télécharger le document": download_button
+            })
+        
+        # Convertissez data_list en un DataFrame
+        df = pd.DataFrame(data_list)
+
+        # Affichez le DataFrame avec Streamlit
+        st.write(df)
     else:
         st.warning("Aucun document trouvé pour ce SIREN.")
 else:
