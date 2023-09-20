@@ -1,6 +1,8 @@
 import streamlit as st
 import requests
 from io import BytesIO
+import pandas as pd
+
 
 # Fonctions pour obtenir le token et les documents
 def get_token():
@@ -15,6 +17,7 @@ def get_token():
     else:
         return None
 
+@st.cache(allow_output_mutation=True)
 def get_documents(siren, token):
     url = f"https://registre-national-entreprises.inpi.fr/api/companies/{siren}/attachments"
     headers = {
@@ -26,6 +29,7 @@ def get_documents(siren, token):
     else:
         return None
 
+@st.cache(allow_output_mutation=True)
 def download_document(doc_id, token):
     url = f"https://registre-national-entreprises.inpi.fr/api/actes/{doc_id}/download"
     headers = {
@@ -59,7 +63,8 @@ token = get_token()
 
 if token and siren:
     documents = get_documents(siren, token)
-    data_list = []  # Pour stocker les données de chaque document
+    data_list = []
+
     if documents:
         for doc in documents:
             date_depot = doc.get('dateDepot')
@@ -69,19 +74,12 @@ if token and siren:
                 type_acte = type_rdd.get('typeActe')
                 decision = type_rdd.get('decision')
             
-            doc_id = doc.get('id')  # Assume 'id' is the key that contains the document ID
+            doc_id = doc.get('id')
             download_button = None
             if doc_id:
-                pdf_data = download_document(doc_id, token)
-                if pdf_data:
-                    # Créer un bouton de téléchargement en tant que chaîne HTML
-                   import base64
-                   download_button = f'<a href="data:application/pdf;base64,{base64.b64encode(pdf_data.read()).decode("utf-8")}" download="{doc_id}.pdf">Télécharger le document</a>'
-
-                else:
-                    st.error("Impossible de télécharger le document.")
-
-            # Ajoutez les données du document actuel à data_list
+                # Création d'un lien de téléchargement qui appellera la fonction download_document lorsqu'il sera cliqué
+                download_button = f'<a href="/download?doc_id={doc_id}&token={token}" target="_blank">Télécharger le document</a>'
+                
             data_list.append({
                 "Date de dépôt": date_depot,
                 "Type d'acte": type_acte,
@@ -89,10 +87,7 @@ if token and siren:
                 "Télécharger le document": download_button
             })
         
-        # Convertissez data_list en un DataFrame
         df = pd.DataFrame(data_list)
-
-        # Affichez le DataFrame avec Streamlit
         st.write(df.to_html(escape=False), unsafe_allow_html=True)
     else:
         st.warning("Aucun document trouvé pour ce SIREN.")
