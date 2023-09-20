@@ -77,7 +77,7 @@ if token and siren:
                     # Créer un bouton de téléchargement en tant que chaîne HTML
                    import base64
 # ...
-download_button = f'<a href="data:application/pdf;base64,{base64.b64encode(pdf_data.read()).decode("utf-8")}" download="{doc_id}.pdf">Télécharger le document</a>'
+                    download_button = f'<a href="data:application/pdf;base64,{base64.b64encode(pdf_data.read()).decode("utf-8")}" download="{doc_id}.pdf">Télécharger le document</a>'
 
                 else:
                     st.error("Impossible de télécharger le document.")
