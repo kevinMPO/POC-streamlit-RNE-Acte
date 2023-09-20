@@ -4,10 +4,27 @@ from io import BytesIO
 
 # Fonctions pour obtenir le token et les documents
 def get_token():
-    # ... (Votre code existant ici)
+    url = "https://registre-national-entreprises.inpi.fr/api/sso/login"
+    payload = {
+        "username": "kmameri@scores-decisions.com",
+        "password": "Intesciarne2022!"
+    }
+    response = requests.post(url, json=payload)
+    if response.status_code == 200:
+        return response.json().get("token")
+    else:
+        return None
 
 def get_documents(siren, token):
-    # ... (Votre code existant ici)
+    url = f"https://registre-national-entreprises.inpi.fr/api/companies/{siren}/attachments"
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return response.json().get("actes")
+    else:
+        return None
 
 def download_document(doc_id, token):
     url = f"https://registre-national-entreprises.inpi.fr/api/actes/{doc_id}/download"
@@ -21,22 +38,34 @@ def download_document(doc_id, token):
         return None
 
 # Configuration Streamlit
-# ... (Votre code existant ici)
+st.set_page_config(
+    page_title="Consultation des Actes d'Entreprises",
+    layout='wide',
+    page_icon="📑",
+    menu_items={
+         'About': 'Call Kevin MAMERI',
+     }
+)
 
 # Titre de la page
-# ... (Votre code existant ici)
+st.header("Consultation des Actes d'Entreprises via SIREN")
+st.caption("App développée par Kevin MAMERI")
 
 # Entrée du SIREN
-# ... (Votre code existant ici)
+siren = st.text_input("Veuillez entrer le SIREN de l'entreprise:")
 
 # Obtenir le token
-# ... (Votre code existant ici)
+token = get_token()
 
 if token and siren:
     documents = get_documents(siren, token)
     if documents:
         for doc in documents:
-            # ... (Votre code existant pour afficher les détails du document)
+            st.write(f"Date de dépôt : {doc.get('dateDepot')}")
+            st.write(f"Nom du document : {doc.get('nomDocument')}")
+            for type_rdd in doc.get('typeRdd', []):
+                st.write(f"Type d'acte : {type_rdd.get('typeActe')}")
+                st.write(f"Décision : {type_rdd.get('decision')}")
             
             doc_id = doc.get('id')  # Assume 'id' is the key that contains the document ID
             if doc_id:
@@ -50,6 +79,7 @@ if token and siren:
                     )
                 else:
                     st.error("Impossible de télécharger le document.")
+            st.write("")  # Cette ligne ajoute un espace entre chaque document
     else:
         st.warning("Aucun document trouvé pour ce SIREN.")
 else:
