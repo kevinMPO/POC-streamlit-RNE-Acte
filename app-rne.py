@@ -45,18 +45,26 @@ siren = st.text_input("Veuillez entrer le SIREN de l'entreprise:")
 # Obtenir le token
 token = get_token()
 
+import pandas as pd
+
 if token and siren:
     documents = get_documents(siren, token)
     if documents:
+        data = []
         for doc in documents:
-            st.write(f"Date de dépôt : {doc.get('dateDepot')}")
-            st.write(f"Nom du document : {doc.get('nomDocument')}")
-            for type_rdd in doc.get('typeRdd', []):
-                st.write(f"Type d'acte : {type_rdd.get('typeActe')}")
-                st.write(f"Décision : {type_rdd.get('decision')}")
-            st.write("")  # Cette ligne ajoute un espace entre chaque document
+            date_depot = doc.get('dateDepot')
+            nom_document = doc.get('nomDocument')
+            type_rdds = doc.get('typeRdd', [])
+            for type_rdd in type_rdds:
+                type_acte = type_rdd.get('typeActe')
+                decision = type_rdd.get('decision')
+                data.append([date_depot, nom_document, type_acte, decision])
+        
+        df = pd.DataFrame(data, columns=['Date de dépôt', 'Nom du document', 'Type d'acte', 'Décision'])
+        st.write(df)
     else:
         st.warning("Aucun document trouvé pour ce SIREN.")
 else:
     if not token:
         st.error("Impossible d'obtenir le token.")
+
